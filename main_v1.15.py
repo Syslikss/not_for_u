@@ -1,47 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ## Instals
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('cd', '/yolov5')
-get_ipython().system('pip install -r yolov5/requirements.txt  # install')
-get_ipython().run_line_magic('cd', '/yolov5')
-
-
-# In[ ]:
-
-
-get_ipython().system('pip install fuzzywuzzy')
-get_ipython().system('pip install python-Levenshtein')
-
-
-# In[ ]:
-
-
-get_ipython().system('pip install "paddleocr>=2.0.1" --upgrade # Recommend to use version 2.0.1+')
-get_ipython().system('pip install paddlepaddle')
-
-
-# In[ ]:
-
-
-get_ipython().system('pip install munkres')
-
-
-# In[ ]:
-
-
-get_ipython().system('pip install pyTelegramBotAPI')
-
-
-# ## Imports
-
-# In[ ]:
-
-
 from PIL import Image
 from itertools import product
 
@@ -59,37 +15,15 @@ import torch
 
 from math import sqrt
 
-
-# In[ ]:
-
-
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 
 from paddleocr import PaddleOCR
 
-
-# In[ ]:
-
-
 from munkres import Munkres, print_matrix
-
-
-# In[ ]:
-
 
 import telebot
 import io
-
-
-# In[ ]:
-
-
-# %matplotlib inline
-
-
-# In[ ]:
-
 
 plt.rcParams["figure.figsize"] = (20, 30)
 plt.rcParams["figure.dpi"] = (150)
@@ -98,8 +32,6 @@ plt.rcParams["figure.dpi"] = (150)
 # ## Clases
 
 # ### utility
-
-# In[ ]:
 
 
 class Utility:
@@ -124,6 +56,7 @@ class Utility:
 
     def get_grid(self, h, w):
         def _get_grid(x): return range(0, self.d * ceil(x / self.d), self.d)
+
         return product(_get_grid(h), _get_grid(w))
 
     def tileImage(self, img):
@@ -165,7 +98,7 @@ class Utility:
             h = r['ymax'] - r['ymin']
             bbox = patches.Rectangle((r['xmin'], r['ymin']), w, h, linewidth=1,
                                      edgecolor=(1, 0, 0), fill=False)
-            plt.text(r['xmin'], r['ymin'] + h//2, r['name'][:5], color='green',
+            plt.text(r['xmin'], r['ymin'] + h // 2, r['name'][:5], color='green',
                      verticalalignment='bottom', size=6)
             ax.add_patch(bbox)
         if match:
@@ -173,7 +106,7 @@ class Utility:
                 r1 = table.iloc[[m[0]]]
                 r2 = table.iloc[[m[1]]]
                 plt.plot([r1['xmax'], r2['xmax']], [r1['ymax'],
-                         r2['ymax']], color="blue", linewidth=2)
+                                                    r2['ymax']], color="blue", linewidth=2)
 
         if name:
             plt.savefig(name, format='png',
@@ -181,8 +114,6 @@ class Utility:
 
 
 # ### finder
-
-# In[ ]:
 
 
 class Finder:
@@ -196,7 +127,7 @@ class Finder:
         self.table = None
 
     def open_image(self, filename, dir_in):
-        #resize is helpfull
+        # resize is helpfull
         self.current_image = Image.open(
             os.path.join(dir_in, filename)).convert('RGB')
 
@@ -250,8 +181,6 @@ class Finder:
 
 # ### reader
 
-# In[ ]:
-
 
 class Reader:
     def __init__(self) -> None:
@@ -292,8 +221,6 @@ class Reader:
 
 
 # ### matcher
-
-# In[ ]:
 
 
 class Matcher:
@@ -336,16 +263,14 @@ class Matcher:
         return res_d
 
     def get_dist(self, row1, row2):
-        a = ((row1['xmax'] - row1['xmin'])//2 + row1['xmin']) - \
-            ((row2['xmax'] - row2['xmin'])//2 + row2['xmin'])
-        b = ((row1['ymax'] - row1['ymin'])//2 + row1['ymin']) - \
-            ((row2['ymax'] - row2['ymin'])//2 + row2['ymin'])
-        return round(sqrt(a**2 + b**2))
+        a = ((row1['xmax'] - row1['xmin']) // 2 + row1['xmin']) - \
+            ((row2['xmax'] - row2['xmin']) // 2 + row2['xmin'])
+        b = ((row1['ymax'] - row1['ymin']) // 2 + row1['ymin']) - \
+            ((row2['ymax'] - row2['ymin']) // 2 + row2['ymin'])
+        return round(sqrt(a ** 2 + b ** 2))
 
 
 # ### endTableFormer
-
-# In[ ]:
 
 
 class EndTableFormer:
@@ -393,64 +318,8 @@ class EndTableFormer:
         return None
 
 
-# ## Usage
-
-# In[ ]:
-
-
-# finder = Finder()
-
-
-# In[ ]:
-
-
-# filename = 'scheme_056.png' #56
-# dir_in = '/datasets/scheme_copy_'
-
-
-# In[ ]:
-
-
-# finder.open_image(filename, dir_in) 
-# _=finder.interference()
-# finder.ut.draw(finder.current_image, finder.table)
-
-
-# In[ ]:
-
-
-# rd = Reader()
-# reader = rd.read_from_labels(finder.form_table(), finder.current_image)
-
-
-# In[ ]:
-
-
-# m = Matcher(finder.table)
-# Utility.draw(None, finder.current_image, finder.table, m.match)
-
-
-# In[ ]:
-
-
-# filename = 'exmp-8.png'
-# dir_in = '/datasets/examples/'
-# e = EndTableFormer(filename, dir_in)
-# e.get_end_table()
-
-
-# ## Bot
-# 
-
-# In[ ]:
-
-
 model = torch.hub.load('ultralytics/yolov5', 'custom',
                        path='./yolov5/yolov5/runs/train/03_08_2022_2_from_03_08_2022/weights/best.pt')  # local model
-
-
-# In[ ]:
-
 
 TOKEN = ':TOKEN:'
 tb = telebot.TeleBot(TOKEN)
@@ -468,7 +337,7 @@ def handle_text(message):
             file_info = tb.get_file(message.document.file_id)
         else:
             file_info = tb.get_file(
-                message.photo[len(message.photo)-1].file_id)
+                message.photo[len(message.photo) - 1].file_id)
 
         downloaded_file = tb.download_file(file_info.file_path)
         img = Image.open(io.BytesIO(downloaded_file)).convert('RGB')
@@ -492,10 +361,3 @@ def handle_text(message):
 
 
 tb.polling(none_stop=True, interval=0)
-
-
-# In[ ]:
-
-
-
-
